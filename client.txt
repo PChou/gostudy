@@ -1,0 +1,42 @@
+package main
+
+import (
+	"encoding/binary"
+	"fmt"
+	"net"
+)
+
+func Boxing(body []byte) (packet []byte, err error) {
+	len := len(body)
+	lenShort := uint16(len)
+	buf := make([]byte, len+2)
+	binary.BigEndian.PutUint16(buf[0:2], lenShort)
+	copy(buf[0:], buf)
+	copy(buf[2:], body)
+	return buf, nil
+}
+
+func main() {
+	fmt.Println("Starting a client...")
+
+	conn, err := net.Dial("tcp", "127.0.0.1:10004")
+	if err != nil {
+		fmt.Println("connect error.")
+		return
+	}
+	defer conn.Close()
+
+	var body []byte
+	for i := 0; i < 300; i++ {
+		body = append(body, 'M')
+	}
+	packet, err := Boxing(body)
+	if err != nil {
+		fmt.Println("packet boxing error")
+		return
+	}
+
+	conn.Write(packet)
+	return
+
+}
