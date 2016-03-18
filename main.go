@@ -23,10 +23,11 @@ func doConnect(conn net.Conn, protocol PacketProtocol) {
 			return
 		}
 
+		fmt.Println("len of body from head is ", bs)
 		buf2 := make([]byte, bs)
 		n, err = conn.Read(buf2[0:])
 		if err != nil {
-			fmt.Println("read body failed.")
+			fmt.Println("read body failed.", err.Error())
 			return
 		}
 
@@ -34,18 +35,20 @@ func doConnect(conn net.Conn, protocol PacketProtocol) {
 		copy(buf3[0:], buf)
 		copy(buf3[len(buf):], buf2)
 
+		fmt.Println(buf3)
+
 		body, err := protocol.UnBoxing(buf3, uint32(len(buf3)))
 		if err != nil {
 			fmt.Println("unboxing body failed.")
 			return
 		}
-		fmt.Println(body)
+		fmt.Println(string(body))
 	}
 
 }
 
 func main() {
-	fmt.Println("Hello go!")
+	fmt.Println("Starting server...")
 
 	//test := [4]byte{'M', 'C', 0x01, 0x02}
 	//for _, v := range test {
@@ -73,6 +76,7 @@ func main() {
 		return
 	}
 	defer listener.Close()
+	fmt.Println("begin listen at 127.0.0.01:1004")
 
 	for {
 		conn, err := listener.Accept()
@@ -81,6 +85,7 @@ func main() {
 			return
 		}
 
+		fmt.Println("comming a client..")
 		go doConnect(conn, protocol)
 	}
 

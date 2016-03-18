@@ -14,25 +14,28 @@ type SimplePacketProtocol struct {
 }
 
 func (protocol *SimplePacketProtocol) HeadSize() uint8 {
-	return 4
+	return 2
 }
 
 func (protocol *SimplePacketProtocol) ValidHead(head []byte, n uint8) (bodySize uint32, err error) {
-	if n != 4 && len(head) != 4 {
+	//	if n != 4 && len(head) != 4 {
+	//		return 0, invalidHeadLenError
+	//	}
+	//
+	//	if head[0] != 77 || head[1] != 67 {
+	//		return 0, invalidHeadLenError
+	//	}
+
+	if n != 2 && len(head) != 2 {
 		return 0, invalidHeadLenError
 	}
-
-	if head[0] != 77 || head[1] != 67 {
-		return 0, invalidHeadLenError
-	}
-
-	len := binary.BigEndian.Uint16(head[2:])
+	len := binary.BigEndian.Uint16(head[0:])
 	return uint32(len), nil
 }
 
 func (protocol *SimplePacketProtocol) UnBoxing(packet []byte, n uint32) (body []byte, err error) {
-	if len(packet) > 4 {
-		return packet[4:], nil
+	if len(packet) > 2 {
+		return packet[2:], nil
 	}
 
 	return nil, invalidPacketError
